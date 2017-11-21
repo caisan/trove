@@ -549,8 +549,10 @@ def load_guest_info(instance, context, id):
         guest = create_guest_client(context, id)
         try:
             volume_info = guest.get_volume_info()
+            node_type = guest.get_node_type()
             instance.volume_used = volume_info['used']
             instance.volume_total = volume_info['total']
+            instance.type = node_type
         except Exception as e:
             LOG.error(e)
     return instance

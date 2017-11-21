@@ -108,6 +108,11 @@ class API(object):
         LOG.debug("Creating Users for instance %s.", self.id)
         self._cast("create_user", self.version_cap, users=users)
 
+    def get_node_type(self):
+        """Make an asynchronous call to get node type for replica_set"""
+        LOG.debug("Get node type for instance %s.", self.id)
+        self._cast("get_node_type", self.version_cap)
+
     def get_user(self, username, hostname):
         """Make an asynchronous call to get a single database user."""
         LOG.debug("Getting a user %(username)s on instance %(id)s.",

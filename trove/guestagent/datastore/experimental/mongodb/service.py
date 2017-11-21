@@ -537,6 +537,12 @@ class MongoDBAdmin(object):
                 else:
                     self.create_validated_user(user, client=client)
 
+    def get_node_type(self):
+        """Get node's type in a replica set cluster"""
+        status = self.get_repl_status()
+        if((status["ok"] == 1)):
+            return status["members"][0]["stateStr"]
+
     def delete_validated_user(self, user):
         """Deletes a user from their database. The caller should ensure that
         this action is valid.

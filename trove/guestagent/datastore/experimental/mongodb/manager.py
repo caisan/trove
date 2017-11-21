@@ -137,6 +137,11 @@ class Manager(manager.Manager):
         with EndNotification(context):
             return service.MongoDBAdmin().create_users(users)
 
+    def get_node_type(self):
+        LOG.debug("Get node type.")
+        with EndNotification(context):
+            return service.MongoDBAdmin.get_node_type()
+
     def delete_database(self, context, database):
         LOG.debug("Deleting database.")
         with EndNotification(context):
