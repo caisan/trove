@@ -369,6 +369,7 @@ class MongoDBApp(object):
     def create_admin_user(self, password):
         """Create the admin user while the localhost exception is active."""
         LOG.debug('Creating the admin user.')
+        """It ok write two times"""
         creds = self.store_admin_password(password)
         user = models.MongoDBUser(name='admin.%s' % creds.username,
                                   password=creds.password)
@@ -412,6 +413,11 @@ class MongoDBApp(object):
     def prep_primary(self):
         # Prepare the primary member of a replica set.
         password = utils.generate_random_password()
+        self.create_admin_user(password)
+        self.restart()
+
+    def prep_primary2(self, password):
+        # Prepare the primary member of a replica set cluster
         self.create_admin_user(password)
         self.restart()
 

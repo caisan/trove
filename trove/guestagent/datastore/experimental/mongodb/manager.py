@@ -252,6 +252,10 @@ class Manager(manager.Manager):
         LOG.debug("Preparing to be primary member.")
         self.app.prep_primary()
 
+    def prep_primary2(self, context, password):
+        LOG.debug("Preparing to be primary member.")
+        self.app.prep_primary2(password)
+
     def create_admin_user(self, context, password):
         self.app.create_admin_user(password)
 

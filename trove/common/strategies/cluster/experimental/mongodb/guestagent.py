@@ -73,6 +73,11 @@ class MongoDbGuestAgentAPI(guest_api.API):
         return self._call("prep_primary", guest_api.AGENT_HIGH_TIMEOUT,
                           self.version_cap)
 
+    def prep_primary2(self, password):
+        LOG.debug("Preparing member to be primary member.")
+        return self._call("prep_primary2", guest_api.AGENT_HIGH_TIMEOUT,
+                          self.version_cap, password=password)
+
     def create_admin_user(self, password):
         LOG.debug("Creating admin user")
         return self._call("create_admin_user", guest_api.AGENT_HIGH_TIMEOUT,

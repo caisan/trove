@@ -316,6 +316,28 @@ class MongoDbClusterTasks(task_models.ClusterTasks):
             return False
         return True
 
+    def _init_replica_set2(self, primary_member, other_members):
+        """Initialize the replica set by calling the primary member guest's
+        add_members. prepare os_admin creds file on both primary and other members.
+				only for repl set cluster
+        """
+        LOG.debug('initializing replica set on %s' % primary_member.id)
+        other_members_ips = []
+        try:
+            password = utils.generate_random_password()
+            for member in other_members:
+                other_members_ips.append(self.get_ip(member))
+                self.get_guest(member).store_admin_password(password)
+                self.get_guest(member).restart()
+            self.get_guest(primary_member).prep_primary2(password)
+            self.get_guest(primary_member).add_members(other_members_ips)
+        except Exception:
+            LOG.exception(_("error initializing replica set"))
+            self.update_statuses_on_failure(self.id,
+                                            shard_id=primary_member.shard_id)
+            return False
+        return True
+
     def _create_shard(self, query_router, members):
         """Create a replica set out of the given member instances and add it as
         a shard to the cluster.
@@ -345,7 +367,7 @@ class MongoDbClusterTasks(task_models.ClusterTasks):
         we dont need query_router,
         so we dont need to add replica_set to query_router as a shard
         '''
-        if not self._init_replica_set(primary_member, other_members):
+        if not self._init_replica_set2(primary_member, other_members):
             return False
         replica_set = self.get_guest(primary_member).get_replica_set_name()
         LOG.debug('creating replica set %s as cluster %s'
