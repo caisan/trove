@@ -147,7 +147,7 @@ class InstanceController(wsgi.Controller):
         new_flavor_id = utils.get_id_from_href(flavorRef)
         with StartNotification(context, instance_id=instance.id,
                                new_flavor_id=new_flavor_id):
-            instance.resize_flavor(new_flavor_id)
+            instance.resize_flavor(context, new_flavor_id)
         return wsgi.Result(None, 202)
 
     def _action_reset_password(self, context, instance, body):

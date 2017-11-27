@@ -1031,13 +1031,17 @@ class Instance(BuiltInstance):
             self.ds_version, flavor, self.id)
         return config.render_dict()
 
-    def resize_flavor(self, new_flavor_id):
+    def resize_flavor(self, context, new_flavor_id):
         self.validate_can_perform_action()
         LOG.info(_LI("Resizing instance %(instance_id)s flavor to "
                      "%(flavor_id)s."),
                  {'instance_id': self.id, 'flavor_id': new_flavor_id})
         if self.db_info.cluster_id is not None:
-            raise exception.ClusterInstanceOperationNotSupported()
+            from trove.cluster.models import Cluster as DBCluster
+            cluster = DBCluster.load(context, self.db_info.cluster_id)
+            if not hasattr(cluster, "allow_resize") or \
+                    not cluster.allow_resize():
+                raise exception.ClusterInstanceOperationNotSupported()
 
         # Validate that the old and new flavor IDs are not the same, new flavor
         # can be found and has ephemeral/volume support if required by the

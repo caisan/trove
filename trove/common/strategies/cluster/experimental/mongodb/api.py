@@ -264,15 +264,26 @@ class MongoDbCluster(models.Cluster):
             instance['related_to'] = related_to
         return instance
 
+    def get_cluster_type(self, db_instances):
+        """
+        Get the type of cluster, wheather sharding or
+        replica set
+        :param db_instances:
+        :return: type of cluster
+        """
+        type_q = 'query_router'
+        query_routers = [db_inst for db_inst in self.db_instances
+                         if db_inst.type == type_q]
+        if len(query_routers):
+            return "sharding-cluster"
+        return "replica-set"
+
     def action(self, context, req, action, param):
         '''
         Grow and add_shard action can not be performed on
         cluster of replica-set type currently
         '''
-        type_i = 'query_router'
-        query_routers = [db_inst for db_inst in self.db_instances
-                         if db_inst.type == type_i]
-        if not query_routers:
+        if self.get_cluster_type(self.db_instances) == "replica-set":
             msg = _("This action can not be performed on the cluster"
                     "type of replica-set only currently")
             raise exception.BadRequest(message=msg)
@@ -287,6 +298,11 @@ class MongoDbCluster(models.Cluster):
                 return self.add_shard()
         else:
             super(MongoDbCluster, self).action(context, req, action, param)
+
+    def allow_resize_flavor(self):
+        if self.get_cluster_type(self.db_instances) == "replica-set":
+            return True
+        return False
 
     def add_shard(self):
 
