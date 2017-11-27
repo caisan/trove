@@ -41,4 +41,8 @@ class MongoDBRootController(ClusterRootController):
         instance_ids = self._find_cluster_node_ids(tenant_id, cluster_id)
         single_instance_id = self._find_query_router_ids(tenant_id,
                                                          cluster_id)[0]
-        return single_instance_id, instance_ids
+        query_router_ids = self._find_query_router_ids(tenant_id,
+                                                       cluster_id)
+        if len(query_router_ids):
+            return query_router_ids[0], instance_ids
+        return instance_ids[0], instance_ids
